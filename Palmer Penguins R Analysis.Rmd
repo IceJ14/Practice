@@ -1,0 +1,130 @@
+---
+title: "Palmer Penguins R Analysis"
+author: "Jayke Sudana"
+date: "1/20/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### The goal of this analysis is to practice basic R functions and data exploration on the Palmer Penguins data set.  
+The learning comes from the [Google Data Analytics Certification offered on Coursera.org](https://www.coursera.org/professional-certificates/google-data-analytics).
+
+### Setting up my environment
+Notes: setting up my R environment by loading the 'tidyverse', 'palmerpenguins', 'here', 'skimr', and 'janitor' packages
+```{r}
+install.packages("palmerpenguins")
+install.packages("tidyverse")
+install.packages("skimr")
+install.packages("here")
+install.packages("janitor")
+install.packages("ggplot2")
+
+library(tidyverse)
+library(palmerpenguins)
+library(skimr)
+library(here)
+library(janitor)
+```
+
+### Viewing the penguins data set
+```{r}
+head(penguins)
+```
+#### Familiarizing ourselves with the penguins data set
+```{r}
+str(penguins)
+```
+#### More information on the data set
+```{r}
+colnames(penguins)
+```
+
+### Ordering penguins data set in descending order by bill length
+```{r}
+penguins %>% 
+  arrange(-bill_length_mm)
+penguins_2 <- penguins %>% arrange(-bill_length_mm)
+view(penguins_2)
+```
+
+### Creating summary statistics of penguins data set by species and island.
+```{r}
+penguins %>% 
+  group_by(species, island) %>% 
+  drop_na() %>% 
+  summarize(max_bl = max(bill_length_mm), mean_bl = mean(bill_length_mm))
+```
+
+### Filtering the data set for 'Adelie' species
+```{r}
+penguins %>% 
+  filter(species == "Adelie")
+```
+
+### Using mutate to add columns with changed values in penguins data set
+```{r}
+penguins %>% 
+  mutate(body_mass_kg=body_mass_g/1000, flipper_length_m=flipper_length_mm/1000)
+```
+
+### Using ggplot2 to visualize the relationship between penguin flipper length and body mass via a scatterplot
+#### Setting up my ggplot2 environment
+```{r}
+library(ggplot2)
+
+ggplot(data = penguins)+geom_point(mapping=aes(x = flipper_length_mm, y = body_mass_g))
+```
+
+### Adding a trend line in our scatterplot of body mass vs. flipper length
+```{r}
+ggplot(data=penguins)+
+  geom_smooth(mapping=aes(x=flipper_length_mm, y=body_mass_g)) +
+  geom_point(mapping=aes(x=flipper_length_mm, y=body_mass_g))
+```
+
+### Displaying penguin body mass vs flipper length with a different linetype for each species.
+```{r}
+ggplot(data=penguins)+
+  geom_smooth(mapping=aes(x=flipper_length_mm,
+                          y=body_mass_g,
+                          linetype=species))
+```
+
+### Using facet_wrap() to display sub plots of the penguin data set based on species.
+```{r}
+ggplot(data=penguins)+
+  geom_point(mapping=aes(x=flipper_length_mm,y=body_mass_g,color=species))+
+  facet_wrap(~species)
+```
+
+### Using facet_grid() to add an additional variable to our subplot, adding a vertical dimension to our subplots.
+```{r}
+ggplot(data=penguins)+
+  geom_point(mapping=aes(x=flipper_length_mm,
+                         y=body_mass_g,
+                         color=species))+
+  facet_grid(sex~species)
+```
+
+### Visualizing the penguin data sets with annotations, titles, and subtitles.
+```{r}
+ggplot(data=penguins)+
+  geom_point(mapping=aes(x=flipper_length_mm,
+                         y=body_mass_g,
+                         color=species))+
+  labs(title="Palmer Penguins: Body Mass vs. Flipper Length",
+       subtitle="Sample of Three Penguin Species",
+       caption="Data Collected by Dr. Kristen Gorman")+
+  annotate("text", x=220,y=3500, label="The Gentoos are the largest")
+
+```
+
+### Saving the data visualizations we created
+```{r}
+ggsave("Palmer Penguins Body Mass vs Flipper Length.png")
+```
+
+
